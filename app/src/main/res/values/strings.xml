@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">StoryApp</string>
+    <string name="welcome_message">Welcome, %1$s</string>
+    <string name="need_login_message">Success. Please login with the registered account.</string>
+    <string name="error_missing_description">Please provide a description</string>
+    <string name="error_missing_photo">Please provide a photo</string>
+    <string name="add_story">Add Story</string>
+    <string name="story_photo">Story Photo</string>
+    <string name="logout">Logout</string>
+    <string name="story_detail">Story Detail</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="description">Description</string>
+    <string name="upload">Upload</string>
+    <string name="text_select_picture">Select Picture</string>
+    <string name="error_password_min_length">Password can\'t be less than 8 characters</string>
+    <string name="error_empty_name">Name is required!</string>
+    <string name="error_empty_email">Email is required!</string>
+    <string name="error_invalid_email">Email is invalid!</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="label_name">Name</string>
+    <string name="already_have_an_account">Already have an account?</string>
+</resources>
