@@ -1,10 +1,18 @@
 package co.mbznetwork.storyapp.repository
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import co.mbznetwork.storyapp.datasource.api.StoryApi
 import co.mbznetwork.storyapp.datasource.api.model.response.GeneralResponse
+import co.mbznetwork.storyapp.datasource.database.dao.StoryDao
+import co.mbznetwork.storyapp.datasource.database.entity.Story
 import co.mbznetwork.storyapp.model.network.NetworkResult
+import co.mbznetwork.storyapp.repository.mediator.StoryRemoteMediator
 import co.mbznetwork.storyapp.util.ApiUtil
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -16,6 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class StoryRepository @Inject constructor(
     private val storyApi: StoryApi,
+    private val storyRemoteMediator: StoryRemoteMediator,
+    private val storyDao: StoryDao,
     private val gson: Gson
 ) {
     suspend fun addStory(
@@ -32,7 +42,19 @@ class StoryRepository @Inject constructor(
         return ApiUtil.finalize(storyApi.addStory(photoMultipart, descriptionRequestBody), gson)
     }
 
-    suspend fun getStories() = ApiUtil.finalize(storyApi.getStories(), gson)
+    @OptIn(ExperimentalPagingApi::class)
+    fun getStories(): Flow<PagingData<Story>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 3,
+                initialLoadSize = 6
+            ),
+            remoteMediator = storyRemoteMediator,
+            pagingSourceFactory = {
+                storyDao.getStories()
+            }
+        ).flow
+    }
 
     suspend fun getStory(id: String) = ApiUtil.finalize(storyApi.getStory(id), gson)
 }

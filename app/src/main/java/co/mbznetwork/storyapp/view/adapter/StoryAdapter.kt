@@ -3,15 +3,15 @@ package co.mbznetwork.storyapp.view.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import co.mbznetwork.storyapp.databinding.ItemStoryBinding
 import co.mbznetwork.storyapp.model.ui.StoryDisplay
 
 class StoryAdapter(
     private val onItemClick: (StoryDisplay, ImageView) -> Unit
-): ListAdapter<StoryDisplay, StoryAdapter.ViewHolder>(DIFF_CALLBACK) {
+): PagingDataAdapter<StoryDisplay, StoryAdapter.ViewHolder>(DIFF_CALLBACK) {
     inner class ViewHolder(
         private val binding: ItemStoryBinding
     ): RecyclerView.ViewHolder(binding.root) {
@@ -35,7 +35,7 @@ class StoryAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        getItem(position)?.let { holder.bind(it) }
     }
 }
 

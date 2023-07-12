@@ -1,6 +1,6 @@
 package co.mbznetwork.storyapp.model.ui
 
-import co.mbznetwork.storyapp.datasource.api.model.response.Story
+import co.mbznetwork.storyapp.datasource.database.entity.Story
 
 data class StoryDisplay(
     val id: String,

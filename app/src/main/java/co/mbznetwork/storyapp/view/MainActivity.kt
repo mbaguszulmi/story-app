@@ -11,6 +11,7 @@ import co.mbznetwork.storyapp.R
 import co.mbznetwork.storyapp.databinding.ActivityMainBinding
 import co.mbznetwork.storyapp.util.activityLifecycle
 import co.mbznetwork.storyapp.view.adapter.StoryAdapter
+import co.mbznetwork.storyapp.view.adapter.StoryLoadStateAdapter
 import co.mbznetwork.storyapp.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -40,15 +41,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun initView() {
         binding.apply {
-            srlMain.apply {
-                setOnRefreshListener {
-                    isRefreshing = false
-                    mainViewModel.getStories()
-                }
-            }
             rvStories.apply {
                 layoutManager = LinearLayoutManager(this@MainActivity)
-                adapter = storyAdapter
+                adapter = storyAdapter.withLoadStateFooter(
+                    StoryLoadStateAdapter {
+                        storyAdapter.retry()
+                    }
+                )
             }
             fabAdd.setOnClickListener {
                 startActivity(Intent(this@MainActivity, AddStoryActivity::class.java))
@@ -56,17 +55,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
 
         activityLifecycle {
-            mainViewModel.getStories()
+            binding.rvStories.apply {
+                post { scrollToPosition(0) }
+            }
         }
     }
 
     private fun observeStories() {
         activityLifecycle {
             mainViewModel.stories.collectLatest {
-                storyAdapter.submitList(it)
-                binding.rvStories.apply {
-                    post { scrollToPosition(0) }
-                }
+                storyAdapter.submitData(it)
             }
         }
     }

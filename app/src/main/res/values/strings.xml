@@ -23,4 +23,6 @@
     <string name="label_password">Password</string>
     <string name="label_name">Name</string>
     <string name="already_have_an_account">Already have an account?</string>
+    <string name="error_occurred">Error occurred</string>
+    <string name="retry">Retry</string>
 </resources>

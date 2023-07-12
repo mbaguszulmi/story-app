@@ -1,5 +1,6 @@
 package co.mbznetwork.storyapp.datasource.api
 
+import co.mbznetwork.storyapp.config.STORY_INITIAL_PAGE
 import co.mbznetwork.storyapp.datasource.api.model.request.LoginRequest
 import co.mbznetwork.storyapp.datasource.api.model.request.RegisterRequest
 import co.mbznetwork.storyapp.datasource.api.model.response.*
@@ -24,8 +25,8 @@ interface StoryApi {
 
     @GET("stories")
     suspend fun getStories(
-        @Query("page") page: Int? = null,
-        @Query("size") size: Int? = null
+        @Query("page") page: Int = STORY_INITIAL_PAGE,
+        @Query("size") size: Int = 20
     ): Response<GetStoriesResponse>
 
     @GET("stories/{id}")
