@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +31,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
+    private val addStoryLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == RESULT_OK) {
+            storyAdapter.refresh()
+            binding.rvStories.apply {
+                post { scrollToPosition(0) }
+            }
+        }
+    }
+
     override val layoutId: Int
         get() = R.layout.activity_main
 
@@ -41,6 +53,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun initView() {
         binding.apply {
+            srlMain.apply {
+                setOnRefreshListener {
+                    storyAdapter.refresh()
+                    isRefreshing = false
+                }
+            }
             rvStories.apply {
                 layoutManager = LinearLayoutManager(this@MainActivity)
                 adapter = storyAdapter.withLoadStateFooter(
@@ -50,13 +68,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 )
             }
             fabAdd.setOnClickListener {
-                startActivity(Intent(this@MainActivity, AddStoryActivity::class.java))
-            }
-        }
-
-        activityLifecycle {
-            binding.rvStories.apply {
-                post { scrollToPosition(0) }
+                addStoryLauncher.launch(
+                    Intent(this@MainActivity, AddStoryActivity::class.java)
+                )
             }
         }
     }
@@ -80,6 +94,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         return when(item.itemId) {
             R.id.action_logout -> {
                 mainViewModel.logout()
+                true
+            }
+            R.id.action_story_map -> {
+                startActivity(Intent(this, StoryMapsActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)

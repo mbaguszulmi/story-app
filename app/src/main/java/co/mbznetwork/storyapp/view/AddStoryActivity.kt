@@ -20,6 +20,8 @@ import co.mbznetwork.storyapp.viewmodel.AddStoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
+private const val BITMAP_DATA = "data"
+
 @AndroidEntryPoint
 class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
 
@@ -36,9 +38,10 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
                     }
                 } ?: kotlin.run {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        getParcelableExtra("data", Bitmap::class.java)
+                        getParcelableExtra(BITMAP_DATA, Bitmap::class.java)
                     } else {
-                        getParcelableExtra("data")
+                        @Suppress("DEPRECATION")
+                        getParcelableExtra(BITMAP_DATA)
                     }?.let {
                         addStoryViewModel.setPhoto(it, cacheDir)
                     }
@@ -114,7 +117,10 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
     private fun observeShouldFinish() {
         activityLifecycle {
             addStoryViewModel.shouldFinish.collectLatest {
-                if (it) finish()
+                if (it) {
+                    setResult(RESULT_OK)
+                    finish()
+                }
             }
         }
     }
@@ -122,6 +128,7 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             android.R.id.home -> {
+                setResult(RESULT_CANCELED)
                 finish()
                 true
             }

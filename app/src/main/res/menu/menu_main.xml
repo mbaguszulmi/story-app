@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/action_story_map"
+        android:icon="@drawable/ic_map"
+        android:title="@string/story_map"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_logout"
         android:title="@string/logout" />

@@ -25,4 +25,5 @@
     <string name="already_have_an_account">Already have an account?</string>
     <string name="error_occurred">Error occurred</string>
     <string name="retry">Retry</string>
+    <string name="story_map">Story Map</string>
 </resources>

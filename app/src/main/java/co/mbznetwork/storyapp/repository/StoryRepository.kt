@@ -58,6 +58,10 @@ class StoryRepository @Inject constructor(
         ).flow
     }
 
+    suspend fun getStoriesWithLocation() = ApiUtil.finalize(gson) {
+        storyApi.getStories(location = 1)
+    }
+
     suspend fun getStory(id: String) = ApiUtil.finalize(gson) {
         storyApi.getStory(id)
     }
