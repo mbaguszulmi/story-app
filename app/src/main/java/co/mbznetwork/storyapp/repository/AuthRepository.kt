@@ -15,9 +15,13 @@ class AuthRepository @Inject constructor(
     private val gson: Gson,
     private val authDataStore: AuthDataStore
 ) {
-    suspend fun register(body: RegisterRequest) = ApiUtil.finalize(storyApi.register(body), gson)
+    suspend fun register(body: RegisterRequest) = ApiUtil.finalize(gson) {
+        storyApi.register(body)
+    }
 
-    suspend fun login(body: LoginRequest) = ApiUtil.finalize(storyApi.login(body), gson)
+    suspend fun login(body: LoginRequest) = ApiUtil.finalize(gson) {
+        storyApi.login(body)
+    }
 
     fun getToken() = authDataStore.get()
 

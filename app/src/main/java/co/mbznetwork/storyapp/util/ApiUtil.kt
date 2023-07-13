@@ -9,8 +9,9 @@ import retrofit2.Response
 import timber.log.Timber
 
 object ApiUtil {
-    fun <T: BaseResponse>finalize(response : Response<T>, gson: Gson): NetworkResult<T> {
+    suspend fun <T: BaseResponse>finalize(gson: Gson, call: suspend () -> Response<T>): NetworkResult<T> {
         return try {
+            val response = call()
             if (response.isSuccessful) {
                 response.body()?.let {
                     if (!it.error) NetworkResult.Success(it)
@@ -31,7 +32,7 @@ object ApiUtil {
             }
         } catch (e: Exception) {
             Timber.e(e, "Error when processing request.")
-            NetworkResult.Error("Error occurred")
+            NetworkResult.Error(e.message ?: "Error occurred")
         }
     }
 }

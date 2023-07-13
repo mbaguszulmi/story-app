@@ -49,7 +49,9 @@ class StoryRemoteMediator @Inject constructor(
             }
         }
 
-        return ApiUtil.finalize(storyApi.getStories(page, state.config.pageSize), gson).let {
+        return ApiUtil.finalize(gson) {
+            storyApi.getStories(page, state.config.pageSize)
+        }.let {
             when(it) {
                 is NetworkResult.Success -> {
                     val stories = it.data.listStory.map {

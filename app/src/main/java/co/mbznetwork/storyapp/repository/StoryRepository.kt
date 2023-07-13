@@ -39,7 +39,9 @@ class StoryRepository @Inject constructor(
             photo.asRequestBody(mime.toMediaType())
         )
         val descriptionRequestBody = description.toRequestBody("text/plain".toMediaType())
-        return ApiUtil.finalize(storyApi.addStory(photoMultipart, descriptionRequestBody), gson)
+        return ApiUtil.finalize(gson) {
+            storyApi.addStory(photoMultipart, descriptionRequestBody)
+        }
     }
 
     @OptIn(ExperimentalPagingApi::class)
@@ -56,5 +58,7 @@ class StoryRepository @Inject constructor(
         ).flow
     }
 
-    suspend fun getStory(id: String) = ApiUtil.finalize(storyApi.getStory(id), gson)
+    suspend fun getStory(id: String) = ApiUtil.finalize(gson) {
+        storyApi.getStory(id)
+    }
 }
