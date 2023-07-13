@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
@@ -17,13 +18,25 @@ import co.mbznetwork.storyapp.databinding.ActivityAddStoryBinding
 import co.mbznetwork.storyapp.util.IntentChooserHelper
 import co.mbznetwork.storyapp.util.activityLifecycle
 import co.mbznetwork.storyapp.viewmodel.AddStoryViewModel
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import java.util.concurrent.TimeUnit
 
 private const val BITMAP_DATA = "data"
 
 @AndroidEntryPoint
-class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
+class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>(), OnMapReadyCallback {
 
     private val addStoryViewModel by viewModels<AddStoryViewModel>()
 
@@ -74,6 +87,22 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
         }
     }
 
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            requestLocationService()
+        }
+    }
+
+    private val enableLocationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) addStoryViewModel.getCurrentUserLocation()
+    }
+
+    private lateinit var googleMap: GoogleMap
+
     override val layoutId: Int
         get() = R.layout.activity_add_story
 
@@ -81,6 +110,8 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
         super.onCreate(savedInstanceState)
         initView()
         observeShouldFinish()
+        observeShouldCheckLocationPermission()
+        observeUserLocation()
     }
 
     private fun initView() {
@@ -88,6 +119,10 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
             title = getString(R.string.add_story)
             setDisplayHomeAsUpEnabled(true)
         }
+
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         binding.apply {
             lifecycleOwner = this@AddStoryActivity
@@ -125,6 +160,34 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
         }
     }
 
+    private fun observeShouldCheckLocationPermission() {
+        activityLifecycle {
+            addStoryViewModel.shouldCheckLocationPermission.collectLatest {
+                if (it) checkLocationPermission()
+            }
+        }
+    }
+
+    private fun observeUserLocation() {
+        activityLifecycle {
+            addStoryViewModel.userLocation.collect {
+                it?.let {
+                    googleMap.apply {
+                        clear()
+                        addMarker(
+                            MarkerOptions().position(it)
+                        )
+                        animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                it, 15f
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             android.R.id.home -> {
@@ -148,5 +211,40 @@ class AddStoryActivity : BaseActivity<ActivityAddStoryBinding>() {
                 type = "image/*"
             }
         )
+    }
+
+    private fun checkLocationPermission() {
+        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    private fun requestLocationService() {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            TimeUnit.SECONDS.toMillis(1)
+        )
+
+        val settings = LocationSettingsRequest.Builder().addLocationRequest(locationRequest.build())
+        LocationServices.getSettingsClient(this)
+            .checkLocationSettings(settings.build())
+            .addOnSuccessListener {
+                addStoryViewModel.getCurrentUserLocation()
+            }.addOnFailureListener {
+                if (it is ResolvableApiException) {
+                    enableLocationLauncher.launch(
+                        IntentSenderRequest.Builder(it.resolution).build()
+                    )
+                }
+            }
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map.apply {
+            setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this@AddStoryActivity, R.raw.map_style
+                )
+            )
+        }
+        addStoryViewModel.setMapReady()
     }
 }

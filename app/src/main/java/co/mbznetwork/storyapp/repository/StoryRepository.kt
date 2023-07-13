@@ -11,6 +11,7 @@ import co.mbznetwork.storyapp.datasource.database.entity.Story
 import co.mbznetwork.storyapp.model.network.NetworkResult
 import co.mbznetwork.storyapp.repository.mediator.StoryRemoteMediator
 import co.mbznetwork.storyapp.util.ApiUtil
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,7 +32,8 @@ class StoryRepository @Inject constructor(
     suspend fun addStory(
         photo: File,
         mime: String,
-        description: String
+        description: String,
+        latLng: LatLng? = null
     ): NetworkResult<GeneralResponse> {
         val photoMultipart = MultipartBody.Part.createFormData(
             "photo",
@@ -40,7 +42,12 @@ class StoryRepository @Inject constructor(
         )
         val descriptionRequestBody = description.toRequestBody("text/plain".toMediaType())
         return ApiUtil.finalize(gson) {
-            storyApi.addStory(photoMultipart, descriptionRequestBody)
+            storyApi.addStory(
+                photoMultipart,
+                descriptionRequestBody,
+                latLng?.latitude.toString().toRequestBody("text/plain".toMediaType()),
+                latLng?.longitude.toString().toRequestBody("text/plain".toMediaType())
+            )
         }
     }
 
