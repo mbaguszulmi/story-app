@@ -22,13 +22,13 @@ class LocationRepository @Inject constructor(
         val callback = object: LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 result.lastLocation?.let {
-                    trySend(if (BuildConfig.USE_REAL_LOCATION) {
-                        it
-                    } else {
+                    trySend(if (BuildConfig.RANDOMIZE_LOCATION) {
                         Location("").apply {
                             latitude = ((round(it.latitude * 100) / 100) + Math.random() / 100)
                             longitude = ((round(it.longitude * 100) / 100) + Math.random() / 100)
                         }
+                    } else {
+                        it
                     })
                 }
             }

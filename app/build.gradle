@@ -7,6 +7,12 @@ plugins {
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace 'co.mbznetwork.storyapp'
     compileSdk 33
@@ -23,6 +29,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "API_BASE_URL", "\"https://story-api.dicoding.dev/v1/\""
+        buildConfigField "boolean", "RANDOMIZE_LOCATION", localProperties['USE_RANDOMIZE_LOCATION'] ?: "false"
     }
 
     buildTypes {
@@ -43,17 +50,6 @@ android {
     buildFeatures {
         dataBinding true
         viewBinding true
-    }
-
-    productFlavors {
-        reallocation {
-            dimension "env"
-            buildConfigField "boolean", "USE_REAL_LOCATION", "true"
-        }
-        fakelocation {
-            dimension "env"
-            buildConfigField "boolean", "USE_REAL_LOCATION", "false"
-        }
     }
 
 }
