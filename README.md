@@ -6,7 +6,8 @@
 4. Developed with Bottom - Up approach.
 5. Enable optional location when adding a story.
 6. Custom map style.
-7. Techs:
+7. Paging 3 With RemoteMediator
+8. Techs:
    - MVVM (Android Architecture Component)
    - Data Binding
    - Flow
@@ -15,8 +16,9 @@
    - Retrofit2
    - Datastore
    - Timber
-   - Mockito
+   - Room
    - GoogleMaps
+   - Mockito
 
 ## Setup
 
