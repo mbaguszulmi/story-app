@@ -109,7 +109,7 @@ class StoryMapViewModel @Inject constructor(
                 .0,
                 northeast.longitude, result
             )
-            result[0] < 747300
+            result[0] < 7473000
         }
     }
 
