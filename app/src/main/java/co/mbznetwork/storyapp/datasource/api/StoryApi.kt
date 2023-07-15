@@ -19,9 +19,7 @@ interface StoryApi {
     @POST("stories")
     suspend fun addStory(
         @Part photo: MultipartBody.Part,
-        @Part("description") description: RequestBody,
-        @Part("lat") lat: RequestBody? = null,
-        @Part("lon") lon: RequestBody? = null
+        @PartMap requestBody: Map<String, @JvmSuppressWildcards RequestBody>,
     ): Response<GeneralResponse>
 
     @GET("stories")

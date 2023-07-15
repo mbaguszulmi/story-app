@@ -16,6 +16,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -40,13 +41,18 @@ class StoryRepository @Inject constructor(
             photo.name,
             photo.asRequestBody(mime.toMediaType())
         )
-        val descriptionRequestBody = description.toRequestBody("text/plain".toMediaType())
+
+        val requestBody = mutableMapOf<String, RequestBody>().apply {
+            put("description", description.toRequestBody("text/plain".toMediaType()))
+            latLng?.run {
+                put("lat", latitude.toString().toRequestBody("text/plain".toMediaType()))
+                put("lon", longitude.toString().toRequestBody("text/plain".toMediaType()))
+            }
+        }
         return ApiUtil.finalize(gson) {
             storyApi.addStory(
                 photoMultipart,
-                descriptionRequestBody,
-                latLng?.latitude.toString().toRequestBody("text/plain".toMediaType()),
-                latLng?.longitude.toString().toRequestBody("text/plain".toMediaType())
+                requestBody
             )
         }
     }
